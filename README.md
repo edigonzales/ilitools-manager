@@ -1,13 +1,13 @@
-# 🚀 ilitools – Interlis CLI Tool Manager
+# 🚀 ilitools – INTERLIS CLI Tool Manager
 
-`ilitools` is a lightweight command-line utility for installing and managing Interlis-based tools like `ili2c` and `ilivalidator`.
+`ilitools` is a lightweight command-line utility for installing and managing INTERLIS-based tools like `ili2c` and `ilivalidator`.
 
 ### ✅ Features
 
 - Install any released version of `ili2c` or `ilivalidator`
 - Switch between versions easily
 - Automatically updates your `PATH`
-- Works similarly to [SDKMAN](https://sdkman.io/) but for Interlis tools
+- Works similarly to [SDKMAN](https://sdkman.io/) but for INTERLIS tools
 
 ---
 
