@@ -1,0 +1,172 @@
+#!/bin/bash
+
+# Base config
+INSTALL_DIR="$HOME/.ilitools"
+BIN_DIR="$INSTALL_DIR/bin"
+
+# Ensure base directories
+mkdir -p "$BIN_DIR"
+
+# Get Maven metadata URL
+get_metadata_url() {
+  case "$1" in
+    ili2c) echo "https://jars.interlis.ch/ch/interlis/ili2c-tool/maven-metadata.xml" ;;
+    ilivalidator) echo "https://jars.interlis.ch/ch/interlis/ilivalidator/maven-metadata.xml" ;;
+    *) echo "" ;;
+  esac
+}
+
+# Get download URL for a version
+get_download_url() {
+  local tool="$1"
+  local version="$2"
+  case "$tool" in
+    ili2c) echo "https://downloads.interlis.ch/ili2c/ili2c-$version.zip" ;;
+    ilivalidator) echo "https://downloads.interlis.ch/ilivalidator/ilivalidator-$version.zip" ;;
+    *) echo "" ;;
+  esac
+}
+
+# Install a version
+install_tool() {
+  local tool="$1"
+  local version="$2"
+  local url=$(get_download_url "$tool" "$version")
+  local target_dir="$INSTALL_DIR/$tool/$version"
+
+  echo "Installing $tool $version..."
+  rm -rf "$target_dir"
+  mkdir -p "$target_dir"
+  tmp_zip=$(mktemp)
+
+  echo "Downloading $url..."
+  curl -s -L "$url" -o "$tmp_zip" || { echo "Download failed"; exit 1; }
+
+  unzip -q "$tmp_zip" -d "$target_dir"
+  rm "$tmp_zip"
+
+  jar_file=$(find "$target_dir" -name "$tool*.jar" | head -n 1)
+  if [[ -f "$jar_file" ]]; then
+    mv "$jar_file" "$target_dir/$tool.jar"
+  else
+    echo "JAR file not found in archive."
+    exit 1
+  fi
+
+  echo "$tool $version installed."
+}
+
+# Set default version
+set_default() {
+  local tool="$1"
+  local version="$2"
+  echo "$version" > "$INSTALL_DIR/$tool/default"
+  echo "$tool $version set as default"
+}
+
+# Create wrapper script
+create_wrapper() {
+  local tool="$1"
+  local wrapper="$BIN_DIR/$tool"
+
+  cat > "$wrapper" <<EOF
+#!/bin/bash
+DEFAULT_VERSION=\$(cat "$INSTALL_DIR/$tool/default" 2>/dev/null)
+if [[ -z "\$DEFAULT_VERSION" ]]; then
+  echo "No $tool version selected. Use 'ilitools use $tool <version>'"
+  exit 1
+fi
+exec java -jar "$INSTALL_DIR/$tool/\$DEFAULT_VERSION/$tool.jar" "\$@"
+EOF
+
+  chmod +x "$wrapper"
+  echo "Wrapper created at $wrapper"
+}
+
+# List versions
+list_versions() {
+  local tool="$1"
+  local url
+  url=$(get_metadata_url "$tool")
+  local default_version_file="$INSTALL_DIR/$tool/default"
+  local default_version=""
+
+  [[ -f "$default_version_file" ]] && default_version=$(cat "$default_version_file")
+
+  if [[ -z "$url" ]]; then
+    echo "Unknown tool: $tool"
+    return 1
+  fi
+
+  echo "Available versions of $tool:"
+
+  curl -s "$url" | \
+    grep "<version>" | \
+    sed -E 's/.*<version>([^<]+)<\/version>.*/\1/' | \
+    grep -v SNAPSHOT | \
+    while read -r version; do
+      local prefix=""
+      local suffix=""
+
+      [[ "$version" == "$default_version" ]] && prefix="> "
+      [[ -d "$INSTALL_DIR/$tool/$version" ]] && suffix=" (installed)"
+
+      echo "${prefix}${version}${suffix}"
+    done
+}
+
+# Accept short commands
+CMD="$1"
+TOOL="$2"
+VERSION="$3"
+
+[[ "$CMD" == "i" ]] && CMD="install"
+[[ "$CMD" == "u" ]] && CMD="use"
+[[ "$CMD" == "l" ]] && CMD="list"
+
+SUPPORTED_TOOLS="ili2c ilivalidator"
+
+is_supported_tool() {
+  echo "$SUPPORTED_TOOLS" | grep -w "$1" > /dev/null
+}
+
+case "$CMD" in
+  install)
+    if is_supported_tool "$TOOL" && [[ -n "$VERSION" ]]; then
+      install_tool "$TOOL" "$VERSION"
+      set_default "$TOOL" "$VERSION"
+      create_wrapper "$TOOL"
+    else
+      echo "Usage: $0 i <tool> <version>"
+    fi
+    ;;
+  use)
+    if is_supported_tool "$TOOL" && [[ -n "$VERSION" ]]; then
+      if [[ -d "$INSTALL_DIR/$TOOL/$VERSION" ]]; then
+        set_default "$TOOL" "$VERSION"
+      else
+        echo "Version not installed. Run: $0 i $TOOL $VERSION"
+      fi
+    else
+      echo "Usage: $0 u <tool> <version>"
+    fi
+    ;;
+  list)
+    if is_supported_tool "$TOOL" ]; then
+      list_versions "$TOOL"
+    else
+      echo "Supported tools: $SUPPORTED_TOOLS"
+    fi
+    ;;
+  *)
+    echo "ilitools - Interlis CLI tool manager"
+    echo ""
+    echo "Usage:"
+    echo "  $0 i|install <tool> <version>"
+    echo "  $0 u|use <tool> <version>"
+    echo "  $0 l|list <tool>"
+    echo ""
+    echo "Supported tools: $SUPPORTED_TOOLS"
+    echo "Add to PATH: export PATH=\"$BIN_DIR:\$PATH\""
+    ;;
+esac
