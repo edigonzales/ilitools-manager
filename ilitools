@@ -130,6 +130,7 @@ is_supported_tool() {
   echo "$SUPPORTED_TOOLS" | grep -w "$1" > /dev/null
 }
 
+CMD_NAME=$(basename "$0")
 case "$CMD" in
   install)
     if is_supported_tool "$TOOL" && [[ -n "$VERSION" ]]; then
@@ -137,7 +138,7 @@ case "$CMD" in
       set_default "$TOOL" "$VERSION"
       create_wrapper "$TOOL"
     else
-      echo "Usage: $0 i <tool> <version>"
+      echo "Usage: $CMD_NAME i <tool> <version>"
     fi
     ;;
   use)
@@ -148,7 +149,7 @@ case "$CMD" in
         echo "Version not installed. Run: $0 i $TOOL $VERSION"
       fi
     else
-      echo "Usage: $0 u <tool> <version>"
+      echo "Usage: $CMD_NAME u <tool> <version>"
     fi
     ;;
   list)
@@ -162,11 +163,11 @@ case "$CMD" in
     echo "ilitools - Interlis CLI tool manager"
     echo ""
     echo "Usage:"
-    echo "  $0 i|install <tool> <version>"
-    echo "  $0 u|use <tool> <version>"
-    echo "  $0 l|list <tool>"
+    echo "  $CMD_NAME i|install <tool> <version>"
+    echo "  $CMD_NAME u|use <tool> <version>"
+    echo "  $CMD_NAME l|list <tool>"
     echo ""
     echo "Supported tools: $SUPPORTED_TOOLS"
-    echo "Add to PATH: export PATH=\"$BIN_DIR:\$PATH\""
+    #echo "Add to PATH: export PATH=\"$BIN_DIR:\$PATH\""
     ;;
 esac

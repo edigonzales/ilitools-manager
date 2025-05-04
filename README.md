@@ -24,7 +24,10 @@ Then either restart your terminal or run:
 ```bash
 source ~/.bashrc     # or ~/.zshrc depending on your shell
 ```
+Dependencies:
 
+- curl
+- xmllint (e.g. `libxml2-utils`)
 
 ### 🛠 Usage
 

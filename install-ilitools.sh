@@ -8,7 +8,7 @@ echo "[ilitools] Installing to $ILITOOLS_DIR..."
 
 mkdir -p "$BIN_DIR"
 
-curl -s -o "$BIN_DIR/ilitools" "$SCRIPT_URL"
+curl -L -s -o "$BIN_DIR/ilitools" "$SCRIPT_URL"
 chmod +x "$BIN_DIR/ilitools"
 
 SHELL_RC=""
