@@ -16,7 +16,7 @@
 Run this command in your terminal:
 
 ```bash
-curl -s https://gist.githubusercontent.com/edigonzales/320ba6b6407a4989c644a687759ce592/raw/install-ilitools.sh | bash
+curl -s https://raw.githubusercontent.com/edigonzales/ilitools-manager/refs/heads/main/install-ilitools.sh | bash
 ```
 
 Then either restart your terminal or run:

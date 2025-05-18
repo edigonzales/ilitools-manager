@@ -2,7 +2,7 @@
 
 ILITOOLS_DIR="$HOME/.ilitools"
 BIN_DIR="$ILITOOLS_DIR/bin"
-SCRIPT_URL="https://gist.github.com/edigonzales/320ba6b6407a4989c644a687759ce592/raw/ilitools"
+SCRIPT_URL="https://raw.githubusercontent.com/edigonzales/ilitools-manager/refs/heads/main/ilitools"
 
 echo "[ilitools] Installing to $ILITOOLS_DIR..."
 
