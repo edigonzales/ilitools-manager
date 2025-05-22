@@ -137,7 +137,10 @@ case "$CMD" in
   install)
     if is_supported_tool "$TOOL" && [[ -n "$VERSION" ]]; then
       install_tool "$TOOL" "$VERSION"
-      set_default "$TOOL" "$VERSION"
+      DEFAULT_FILE="$INSTALL_DIR/$TOOL/default"
+      if [[ ! -f "$DEFAULT_FILE" ]]; then
+        set_default "$TOOL" "$VERSION"
+      fi
       create_wrapper "$TOOL"
     else
       echo "Usage: $CMD_NAME i <tool> <version>"
