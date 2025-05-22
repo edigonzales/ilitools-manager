@@ -12,6 +12,7 @@ get_metadata_url() {
   case "$1" in
     ili2c) echo "https://jars.interlis.ch/ch/interlis/ili2c-tool/maven-metadata.xml" ;;
     ilivalidator) echo "https://jars.interlis.ch/ch/interlis/ilivalidator/maven-metadata.xml" ;;
+    umleditor) echo "https://jars.interlis.ch/ch/interlis/umleditor/maven-metadata.xml" ;;
     *) echo "" ;;
   esac
 }
@@ -23,6 +24,7 @@ get_download_url() {
   case "$tool" in
     ili2c) echo "https://downloads.interlis.ch/ili2c/ili2c-$version.zip" ;;
     ilivalidator) echo "https://downloads.interlis.ch/ilivalidator/ilivalidator-$version.zip" ;;
+    umleditor) echo "https://downloads.interlis.ch/umleditor/umleditor-$version.zip" ;;
     *) echo "" ;;
   esac
 }
@@ -124,7 +126,7 @@ VERSION="$3"
 [[ "$CMD" == "u" ]] && CMD="use"
 [[ "$CMD" == "l" ]] && CMD="list"
 
-SUPPORTED_TOOLS="ili2c ilivalidator"
+SUPPORTED_TOOLS="ili2c ilivalidator umleditor"
 
 is_supported_tool() {
   echo "$SUPPORTED_TOOLS" | grep -w "$1" > /dev/null
